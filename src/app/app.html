@@ -1,0 +1,124 @@
+<svg class="icon-sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 20v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V20"/><circle cx="9.5" cy="7.5" r="3.5"/><path d="M17 4.2a3.5 3.5 0 0 1 0 6.8M21 20v-1.5a4 4 0 0 0-3-3.87"/></symbol>
+  <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="14" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18M10 12v2h4v-2"/></symbol>
+  <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M5 3h14v18l-3-2-4 2-4-2-3 2zM8 8h8M8 12h8M8 16h4"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M20 8V5a2 2 0 0 0-2-2H5a3 3 0 0 0 0 6h15v10a2 2 0 0 1-2 2H5a3 3 0 0 1-3-3V6"/><path d="M20 12h-4a2 2 0 0 0 0 4h4zM16 14h.01"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M13 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10zM13 3v7h7M8 14h8M8 17h8"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="m10.3 4.3-7 12.1A2 2 0 0 0 5 19.4h14a2 2 0 0 0 1.7-3L13.7 4.3a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 16.5h.01"/></symbol>
+  <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 17h.01M12 17h.01"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/></symbol>
+  <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m8 10 4 4 4-4"/></symbol>
+  <symbol id="i-arrow-up" viewBox="0 0 24 24"><path d="M7 17 17 7M7 7h10v10"/></symbol>
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v5M14 11v5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+</svg>
+
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="#inicio" aria-label="AURA, inicio"><span class="brand-mark">A<span>.</span></span><span class="brand-name">AURA<span>gestión</span></span></a>
+    <div class="workspace-switcher"><span class="workspace-avatar">A</span><span class="workspace-copy"><strong>Aura Servicios</strong><small>Plan empresa</small></span><svg class="icon"><use href="#i-chevron" /></svg></div>
+    <p class="nav-heading">ESPACIO DE TRABAJO</p>
+    <nav class="primary-nav" aria-label="Navegación principal">
+      @for (item of navigation; track item.label) {
+        <button class="nav-link" [class.active]="activeNav() === item.label" [attr.aria-current]="activeNav() === item.label ? 'page' : null" (click)="selectNavigation(item.label)"><svg class="icon"><use [attr.href]="'#i-' + item.icon" /></svg><span>{{ item.label }}</span>@if (item.count) { <span class="nav-count">{{ item.count }}</span> }</button>
+      }
+    </nav>
+    <div class="sidebar-spacer"></div>
+    <div class="sidebar-note"><span class="note-icon"><svg class="icon"><use href="#i-clock" /></svg></span><div><strong>Todo al día</strong><p>Última sincronización<br>hace 4 minutos</p></div><span class="online-dot"></span></div>
+    <button class="profile-button"><span class="avatar avatar-profile">AZ</span><span class="profile-copy"><strong>Andre Zapata</strong><small>Administrador</small></span><span class="profile-more">···</span></button>
+  </aside>
+
+  <main class="main-area">
+    <header class="topbar"><div class="breadcrumb"><span>AURA · ESPACIO DE TRABAJO</span><span class="crumb-divider">/</span><strong>{{ activeNav() }}</strong></div><div class="topbar-actions"><label class="search-box"><svg class="icon"><use href="#i-search" /></svg><input type="search" placeholder="Buscar en este módulo" aria-label="Buscar en este módulo" [value]="searchTerm()" (input)="updateSearch($event)"><kbd>⌘ K</kbd></label><button class="icon-button notification-button" aria-label="Notificaciones"><svg class="icon"><use href="#i-bell" /></svg><span></span></button><span class="avatar avatar-top">AZ</span></div></header>
+    <div class="dashboard-content">
+      @if (activeNav() === 'Resumen') {
+      <section class="welcome-row"><div><p class="eyebrow"><span class="eyebrow-line"></span> LUNES, 5 DE OCTUBRE DE 2026</p><h1>Buenos días, Andre <span class="wave">✳</span></h1><p class="welcome-subtitle">Aquí tienes el pulso de tu operación hoy.</p></div></section>
+
+      <section class="metric-grid" aria-label="Indicadores principales">
+        @for (metric of metrics; track metric.label) {
+          <article class="metric-card"><div class="metric-topline"><span>{{ metric.label }}</span><span [class]="'metric-icon ' + metric.tone"><svg class="icon"><use [attr.href]="'#i-' + metric.icon" /></svg></span></div><div class="metric-value">{{ metric.value }}</div><div class="metric-foot"><span [class]="'metric-change ' + metric.tone">{{ metric.change }}</span><span>{{ metric.note }}</span><svg class="icon trend-icon"><use href="#i-arrow-up" /></svg></div></article>
+        }
+      </section>
+
+      <section class="primary-grid">
+        <article class="panel performance-panel"><div class="panel-heading"><div><p class="section-kicker">FINANZAS</p><h2>Indicadores mensuales</h2></div><label class="select-wrap"><select [value]="selectedPeriod()" (change)="updatePeriod($event)" aria-label="Período del gráfico"><option>Últimos 6 meses</option><option>Este año</option></select><svg class="icon"><use href="#i-chevron" /></svg></label></div>
+          <div class="chart-summary"><div><span class="summary-label">Ingresos totales</span><strong>S/ 124,860.00</strong><span class="summary-growth"><svg class="icon"><use href="#i-arrow-up" /></svg> 12,8%</span></div><div class="chart-legend"><span><i class="legend-dot income-dot"></i>Ingresos</span><span><i class="legend-dot costs-dot"></i>Gastos</span></div></div>
+          <div class="chart-area" role="img" aria-label="Gráfico comparativo mensual de ingresos y gastos"><div class="chart-guides"><span>S/ 30k</span><span>S/ 20k</span><span>S/ 10k</span><span>S/ 0</span></div><div class="chart-columns">@for (bar of monthlyBars; track bar.month) { <div class="chart-month"><div class="bars"><span class="bar income-bar" [style.height.%]="bar.income"></span><span class="bar costs-bar" [style.height.%]="bar.costs"></span></div><span class="month-label">{{ bar.month }}</span></div> }</div></div>
+          <div class="chart-caption"><span><i class="caption-dot"></i>El mejor mes hasta ahora: <strong>octubre</strong></span><span>Comparado con el período anterior</span></div>
+        </article>
+
+        <article class="panel documents-panel"><div class="panel-heading"><div><p class="section-kicker">SEGUIMIENTO</p><h2>Documentos por vencer <span class="heading-count">4</span></h2></div></div>
+          <div class="document-list">@for (document of documents; track document.name) { <div class="document-row"><span [class]="'avatar ' + document.tone">{{ document.kind }}</span><div class="document-copy"><strong>{{ document.name }}</strong><span>{{ document.person }}</span></div><span class="due-date"><i></i>{{ document.date }}</span></div> }</div>
+          <button class="panel-footer-action" (click)="selectNavigation('Documentos')">Revisar documentación <svg class="icon"><use href="#i-arrow-right" /></svg></button>
+        </article>
+      </section>
+
+      <section class="lower-grid">
+        <article class="panel invoices-panel"><div class="panel-heading"><div><p class="section-kicker">POR COBRAR <span class="kicker-dot"></span></p><h2>Facturas pendientes</h2></div><button class="text-action" (click)="selectNavigation('Facturación')">Ver facturación <svg class="icon"><use href="#i-arrow-right" /></svg></button></div>
+          <div class="table-scroll"><table><thead><tr><th>FACTURA</th><th>CLIENTE</th><th>EMISIÓN</th><th>IMPORTE</th><th>ESTADO</th></tr></thead><tbody>
+            @for (invoice of filteredInvoices(); track invoice.id) { <tr><td class="invoice-id">{{ invoice.id }}</td><td class="client-name">{{ invoice.client }}</td><td>{{ invoice.date }}</td><td class="amount">{{ invoice.amount }}</td><td><span [class]="'status-pill ' + invoice.tone"><i></i>{{ invoice.status }}</span></td></tr> } @empty { <tr><td colspan="5" class="empty-state">No hay facturas que coincidan con la búsqueda.</td></tr> }
+          </tbody></table></div><div class="table-footnote"><span>Mostrando 3 de 12 facturas</span><span class="receivable-total">Total pendiente <strong>S/ 18,420.00</strong></span></div>
+        </article>
+
+        <article class="panel incidents-panel"><div class="panel-heading"><div><p class="section-kicker">REQUIERE ATENCIÓN <span class="kicker-dot alert-kicker"></span></p><h2>Incidencias <span class="heading-count alert-count">3</span></h2></div></div>
+          <div class="incident-list">@for (incident of incidents; track incident.title) { <div class="incident-row"><span [class]="'avatar incident-avatar ' + incident.tone">{{ incident.initials }}</span><div class="incident-copy"><strong>{{ incident.title }}</strong><span>{{ incident.detail }}</span></div><span [class]="'priority ' + incident.tone">{{ incident.priority }}</span></div> }</div>
+          <button class="panel-footer-action" (click)="selectNavigation('Incidencias')">Ver centro de incidencias <svg class="icon"><use href="#i-arrow-right" /></svg></button>
+        </article>
+
+        <article class="panel absences-panel"><div class="panel-heading"><div><p class="section-kicker">PERSONAS</p><h2>Vacaciones y permisos</h2></div></div>
+          <div class="absence-list">@for (absence of absences; track absence.name) { <div class="absence-row"><span [class]="'avatar ' + absence.tone">{{ absence.initials }}</span><div class="absence-copy"><strong>{{ absence.name }}</strong><span>{{ absence.role }}</span></div><span class="absence-dates">{{ absence.dates }}</span></div> }</div>
+          <button class="panel-footer-action" (click)="selectNavigation('Vacaciones y permisos')">Gestionar vacaciones y permisos <svg class="icon"><use href="#i-arrow-right" /></svg></button>
+        </article>
+      </section>
+      } @else {
+      <section class="module-workspace">
+        <div class="module-heading"><div><p class="eyebrow"><span class="eyebrow-line"></span> GESTIÓN AURA</p><h1>{{ activeNav() }}</h1><p class="welcome-subtitle">{{ activeModuleDescription() }}</p></div><button class="primary-button" (click)="openCreateDialog()"><svg class="icon"><use href="#i-plus" /></svg> {{ createActionLabel() }}</button></div>
+        <div class="module-overview"><div><span>Registros visibles</span><strong>{{ filteredModuleRecords().length }}</strong></div><div><span>Espacio de trabajo</span><strong>AURA Servicios</strong></div><div><span>Estado de sincronización</span><strong><i class="online-dot"></i> Actualizado</strong></div></div>
+        <article class="panel module-panel"><div class="panel-heading"><div><p class="section-kicker">{{ activeNav() }}</p><h2>Registros</h2></div></div>
+          <div class="table-scroll"><table><thead><tr><th>REGISTRO</th><th>REFERENCIA</th><th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody>
+            @for (record of filteredModuleRecords(); track record.id) { <tr><td><div class="module-record"><strong>{{ record.title }}</strong><span>{{ record.subtitle }}</span></div></td><td class="module-reference">{{ record.reference }}</td><td><span [class]="'status-pill ' + record.tone"><i></i>{{ record.status }}</span></td><td><div class="record-actions"><button class="row-action" (click)="toggleRecordStatus(record.id)">{{ record.status === 'Revisado' ? 'Reabrir' : 'Marcar revisado' }}</button><button class="delete-record" [attr.aria-label]="'Eliminar ' + record.title" [attr.title]="'Eliminar ' + record.title" (click)="requestDelete(record.id)"><svg class="icon"><use href="#i-trash" /></svg></button></div></td></tr> } @empty { <tr><td colspan="4" class="empty-state">No hay registros que coincidan con la búsqueda.</td></tr> }
+          </tbody></table></div>
+          <div class="table-footnote"><span>{{ filteredModuleRecords().length }} registros en esta vista</span><span>Los cambios se guardan en esta sesión</span></div>
+        </article>
+      </section>
+      }
+      <footer class="dashboard-footer"><span>© 2026 AURA Gestión</span><span><i class="online-dot"></i> Todos los sistemas operativos</span><a href="#ayuda">Centro de ayuda <svg class="icon"><use href="#i-arrow-right" /></svg></a></footer>
+    </div>
+  </main>
+  @if (isCreateOpen()) {
+    <div class="dialog-backdrop" (click)="closeCreateDialog()">
+      <section class="create-dialog" role="dialog" aria-modal="true" aria-labelledby="create-title" (click)="$event.stopPropagation()">
+        <div class="dialog-heading"><div><p class="section-kicker">{{ createModuleName() }}</p><h2 id="create-title">{{ createActionLabel() }}</h2></div><button class="icon-button" type="button" aria-label="Cerrar" (click)="closeCreateDialog()">×</button></div>
+        <form (submit)="createRecord($event)">
+          <div class="form-fields">
+            @for (field of createFields(); track field.name) {
+              <label [class.field-wide]="field.wide">{{ field.label }}
+                @if (field.type === 'textarea') {
+                  <textarea [name]="field.name" [required]="field.required ?? false" [placeholder]="field.placeholder ?? ''" maxlength="240" rows="3"></textarea>
+                } @else if (field.type === 'select') {
+                  <select [name]="field.name" [required]="field.required ?? false"><option value="" disabled selected>Selecciona una opción</option>@for (option of field.options ?? []; track option) { <option [value]="option">{{ option }}</option> }</select>
+                } @else {
+                  <input [type]="field.type" [name]="field.name" [required]="field.required ?? false" [placeholder]="field.placeholder ?? ''" [attr.min]="field.min ?? null" [attr.step]="field.step ?? null" maxlength="120">
+                }
+              </label>
+            }
+          </div>
+          <div class="dialog-actions"><button class="secondary-button" type="button" (click)="closeCreateDialog()">Cancelar</button><button class="primary-button" type="submit">Guardar</button></div>
+        </form>
+      </section>
+    </div>
+  }
+  @if (pendingDelete()) {
+    <div class="dialog-backdrop" (click)="cancelDelete()">
+      <section class="create-dialog delete-dialog" role="alertdialog" aria-modal="true" aria-labelledby="delete-title" (click)="$event.stopPropagation()">
+        <div class="dialog-heading"><div><p class="section-kicker">{{ activeNav() }}</p><h2 id="delete-title">¿Eliminar este registro?</h2></div><button class="icon-button" type="button" aria-label="Cerrar" (click)="cancelDelete()">×</button></div>
+        <p>Se eliminará <strong>{{ pendingDelete()?.title }}</strong>. Esta acción no se puede deshacer.</p>
+        <div class="dialog-actions"><button class="secondary-button" type="button" (click)="cancelDelete()">Cancelar</button><button class="danger-button" type="button" (click)="confirmDelete()">Eliminar</button></div>
+      </section>
+    </div>
+  }
+</div>
