@@ -1,11 +1,18 @@
 import { TestBed } from '@angular/core/testing';
+import { vi } from 'vitest';
 import { App } from './app';
+import { demoAdminCredentials } from './demo-credentials';
 
 describe('App', () => {
   beforeEach(async () => {
+    sessionStorage.setItem('aura.session', JSON.stringify({ name: 'Andre Zapata', email: 'admin@aura.local' }));
     await TestBed.configureTestingModule({
       imports: [App],
     }).compileComponents();
+  });
+
+  afterEach(() => {
+    sessionStorage.removeItem('aura.session');
   });
 
   it('should create the app', () => {
@@ -39,6 +46,74 @@ describe('App', () => {
     expect(compiled.querySelector('#create-title')?.textContent).toContain('Nueva factura');
     expect(compiled.querySelector('input[name="amount"]')?.getAttribute('type')).toBe('number');
     expect(compiled.querySelector('input[name="dueDate"]')?.getAttribute('type')).toBe('date');
+  });
+
+  it('should require the configured demo administrator credentials', async () => {
+    sessionStorage.removeItem('aura.session');
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const email = compiled.querySelector<HTMLInputElement>('input[name="email"]')!;
+    const password = compiled.querySelector<HTMLInputElement>('input[name="password"]')!;
+    const form = compiled.querySelector<HTMLFormElement>('.auth-form')!;
+
+    email.value = 'wrong@aura.local';
+    password.value = 'wrong-password';
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+    expect(compiled.querySelector('.auth-message')?.textContent).toContain('incorrectos');
+
+    email.value = demoAdminCredentials.email;
+    password.value = demoAdminCredentials.password;
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+
+    expect(compiled.querySelector('.profile-copy strong')?.textContent).toBe('Andre Zapata');
+    expect(sessionStorage.getItem('aura.session')).not.toContain(demoAdminCredentials.password);
+  });
+
+  it('should create a local demo session from registration', async () => {
+    sessionStorage.removeItem('aura.session');
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+    compiled.querySelector<HTMLButtonElement>('.auth-switch button:last-child')?.click();
+    fixture.detectChanges();
+    const form = compiled.querySelector<HTMLFormElement>('.auth-form')!;
+    const values: Record<string, string> = {
+      name: 'Lucía Torres',
+      email: 'lucia@example.com',
+      password: 'ClaveDemo123!',
+      confirmPassword: 'ClaveDemo123!',
+    };
+    for (const [name, value] of Object.entries(values)) {
+      compiled.querySelector<HTMLInputElement>(`[name="${name}"]`)!.value = value;
+    }
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    fixture.detectChanges();
+
+    expect(compiled.querySelector('.profile-copy strong')?.textContent).toBe('Lucía Torres');
+    expect(sessionStorage.getItem('aura.session')).not.toContain('ClaveDemo123!');
+  });
+
+  it('should wait before returning to the login screen on sign out', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+    vi.useFakeTimers();
+    compiled.querySelector<HTMLButtonElement>('.profile-button')?.click();
+    fixture.detectChanges();
+    compiled.querySelector<HTMLButtonElement>('.profile-menu button')?.click();
+    fixture.detectChanges();
+
+    expect(compiled.querySelector('.signout-overlay')).not.toBeNull();
+    expect(compiled.querySelector('.auth-screen')).toBeNull();
+    await vi.advanceTimersByTimeAsync(2000);
+    fixture.detectChanges();
+    vi.useRealTimers();
+
+    expect(compiled.querySelector('.signout-overlay')).toBeNull();
+    expect(compiled.querySelector('.auth-screen')).not.toBeNull();
   });
 
   it('should show module-specific fields in every creation modal', async () => {

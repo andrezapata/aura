@@ -1,4 +1,5 @@
 import { Component, computed, signal } from '@angular/core';
+import { demoAdminCredentials } from './demo-credentials';
 
 interface ModuleRecord {
   id: string;
@@ -21,17 +22,36 @@ interface CreateField {
   wide?: boolean;
 }
 
+interface UserSession {
+  name: string;
+  email: string;
+}
+
 @Component({
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',
 })
 export class App {
+  private readonly sessionStorageKey = 'aura.session';
+  protected readonly currentUser = signal<UserSession | null>(this.readSessionUser());
+  protected readonly isAuthenticated = computed(() => this.currentUser() !== null);
+  protected readonly authMode = signal<'login' | 'register'>('login');
+  protected readonly authMessage = signal('');
+  protected readonly isSigningOut = signal(false);
+  protected readonly isProfileMenuOpen = signal(false);
   protected readonly activeNav = signal('Resumen');
   protected readonly searchTerm = signal('');
   protected readonly selectedPeriod = signal('Últimos 6 meses');
   protected readonly isCreateOpen = signal(false);
   protected readonly pendingDelete = signal<ModuleRecord | null>(null);
+  protected readonly greetingName = computed(() => this.currentUser()?.name.trim().split(/\s+/)[0] || 'Andre');
+  protected readonly userInitials = computed(() => (this.currentUser()?.name ?? 'Andre Zapata')
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toLocaleUpperCase('es'))
+    .join(''));
 
   protected readonly navigation = [
     { label: 'Resumen', icon: 'grid' },
@@ -238,6 +258,84 @@ export class App {
   protected selectNavigation(label: string): void {
     this.activeNav.set(label);
     this.searchTerm.set('');
+  }
+
+  protected setAuthMode(mode: 'login' | 'register'): void {
+    this.authMode.set(mode);
+    this.authMessage.set('');
+  }
+
+  protected notifyProviderUnavailable(provider: string): void {
+    this.authMessage.set(`El acceso con ${provider} requiere configurar OAuth en el servidor.`);
+  }
+
+  protected completeAuthentication(event: SubmitEvent): void {
+    event.preventDefault();
+    const form = event.currentTarget as HTMLFormElement;
+    const values = new FormData(form);
+    const email = String(values.get('email') ?? '').trim().toLocaleLowerCase('es');
+    const password = String(values.get('password') ?? '');
+    const submittedName = String(values.get('name') ?? '').trim();
+
+    if (this.authMode() === 'login' && (email !== demoAdminCredentials.email || password !== demoAdminCredentials.password)) {
+      this.authMessage.set('Correo o contraseña incorrectos. Usa la cuenta demo configurada para este proyecto.');
+      return;
+    }
+
+    if (this.authMode() === 'register' && password !== String(values.get('confirmPassword') ?? '')) {
+      this.authMessage.set('Las contraseñas no coinciden.');
+      return;
+    }
+
+    const emailName = email.split('@')[0].replace(/[._-]+/g, ' ').trim();
+    const name = submittedName || (email === demoAdminCredentials.email
+      ? 'Andre Zapata'
+      : emailName.replace(/\b\p{L}/gu, (letter) => letter.toLocaleUpperCase('es'))) || 'Andre';
+    const session = { name, email };
+    this.currentUser.set(session);
+    try {
+      sessionStorage.setItem(this.sessionStorageKey, JSON.stringify(session));
+    } catch {
+      this.authMessage.set('No se pudo guardar la sesión en este navegador.');
+      this.currentUser.set(null);
+      return;
+    }
+    this.authMessage.set('');
+    this.activeNav.set('Resumen');
+    form.reset();
+  }
+
+  protected toggleProfileMenu(): void {
+    this.isProfileMenuOpen.update((open) => !open);
+  }
+
+  protected signOut(): void {
+    if (this.isSigningOut()) return;
+    this.isSigningOut.set(true);
+    this.isProfileMenuOpen.set(false);
+    setTimeout(() => {
+      try {
+        sessionStorage.removeItem(this.sessionStorageKey);
+      } catch {
+      }
+      this.currentUser.set(null);
+      this.authMode.set('login');
+      this.authMessage.set('');
+      this.isSigningOut.set(false);
+    }, 2000);
+  }
+
+  private readSessionUser(): UserSession | null {
+    try {
+      const stored = sessionStorage.getItem(this.sessionStorageKey);
+      if (!stored) return null;
+      const session = JSON.parse(stored) as Partial<UserSession>;
+      return typeof session.name === 'string' && typeof session.email === 'string'
+        ? { name: session.name, email: session.email }
+        : null;
+    } catch {
+      return null;
+    }
   }
 
   protected openCreateDialog(): void {

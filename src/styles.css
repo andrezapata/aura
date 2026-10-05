@@ -1,1 +1,42 @@
 /* You can add global styles to this file, and also import other style files */
+.auth-screen { position: relative; display: grid; place-items: center; min-height: 100vh; padding: 88px 18px 70px; overflow: hidden; background: #0b192c; color: #edf2f8; }
+.auth-screen::before { position: absolute; inset: 0; background: linear-gradient(135deg, #10213a 0%, #0b192c 52%, #14233a 100%); content: ''; }
+.auth-brand { position: absolute; z-index: 1; top: 30px; left: max(28px, calc((100vw - 1220px) / 2)); display: flex; align-items: center; gap: 12px; }
+.auth-brand img { width: 46px; height: 46px; border-radius: 8px; }
+.auth-panel { position: relative; z-index: 1; width: min(100%, 450px); padding: 28px; border: 1px solid #2c405d; border-radius: 9px; background: #14243a; box-shadow: 0 22px 70px rgb(0 0 0 / 32%); }
+.auth-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-bottom: 28px; padding: 4px; border: 1px solid #293d58; border-radius: 6px; background: #0f1e32; }
+.auth-switch button { min-height: 36px; border: 1px solid transparent; border-radius: 4px; background: transparent; color: #bdc9da; font-size: 11px; font-weight: 600; cursor: pointer; }
+.auth-switch button.active { border-color: #dc2626; background: #dc2626; color: #fff; }
+.auth-kicker { margin-bottom: 8px; color: #ff8a8a; font-size: 9px; font-weight: 700; letter-spacing: 1px; }
+.auth-panel h1 { margin-bottom: 7px; font-size: 26px; }
+.auth-description { margin-bottom: 22px; color: #bdc9da; font-size: 12px; }
+.auth-form { display: grid; gap: 14px; }
+.auth-form label { display: grid; gap: 7px; color: #d4deeb; font-size: 11px; font-weight: 600; }
+.auth-form input { width: 100%; height: 42px; padding: 0 11px; border: 1px solid #354a65; border-radius: 5px; outline: 0; background: #0f1e32; color: #f1f5f9; font-size: 12px; }
+.auth-form input::placeholder { color: #9cacc2; opacity: 1; }
+.auth-form input:focus { border-color: #dc2626; box-shadow: 0 0 0 3px rgb(220 38 38 / 18%); }
+.auth-submit { justify-content: center; min-height: 42px; margin-top: 3px; }
+.auth-divider { display: flex; align-items: center; gap: 12px; margin: 21px 0 16px; color: #bdc9da; font-size: 10px; }
+.auth-divider::before, .auth-divider::after { height: 1px; flex: 1; background: #2c405d; content: ''; }
+.provider-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.provider-button { display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 40px; border: 1px solid #3a506c; border-radius: 5px; background: #192b43; color: #edf2f8; font-size: 10px; font-weight: 600; cursor: pointer; }
+.provider-button:hover { border-color: #7f91a9; background: #20344f; }
+.provider-logo { display: block; width: 20px; height: 20px; flex: 0 0 auto; }
+.auth-message { margin: 15px 0 0; padding: 10px 11px; border: 1px solid #75404a; border-radius: 5px; background: #3a242d; color: #ffb4ae; font-size: 11px; line-height: 1.5; }
+.auth-disclaimer { margin: 18px 0 0; color: #aebbd0; font-size: 10px; line-height: 1.55; }
+.auth-footer { position: absolute; z-index: 1; bottom: 22px; color: #aebbd0; font-size: 10px; }
+.signout-overlay { position: fixed; z-index: 20; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; background: rgb(7 17 32 / 88%); color: #f1f5f9; }
+.signout-overlay > span:last-child { color: #bdc9da; font-size: 12px; }
+.loading-ring { width: 34px; height: 34px; border: 3px solid #344963; border-top-color: #dc2626; border-radius: 50%; animation: spin .75s linear infinite; }
+.signout-overlay strong { font: 700 16px 'Manrope', sans-serif; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 680px) {
+	.auth-panel { padding: 22px 18px; }
+	.auth-brand { top: 20px; left: 18px; }
+	.auth-brand img { width: 38px; height: 38px; }
+	.auth-brand .brand-name { font-size: 18px; }
+	.auth-panel h1 { font-size: 23px; }
+	.provider-actions { grid-template-columns: 1fr; }
+}
