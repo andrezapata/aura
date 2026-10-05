@@ -31,6 +31,18 @@ describe('App', () => {
     expect(compiled.querySelector('.welcome-row .primary-button')).toBeNull();
   });
 
+  it('should keep only email-based sign-in and registration options', async () => {
+    sessionStorage.removeItem('aura.session');
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    expect(compiled.querySelector('.provider-actions')).toBeNull();
+    expect(compiled.textContent).not.toContain('Google / Gmail');
+    expect(compiled.textContent).not.toContain('Facebook');
+    expect(compiled.querySelector('.auth-switch')?.textContent).toContain('Registrarme');
+  });
+
   it('should show invoice fields in the invoice creation modal', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
@@ -57,43 +69,38 @@ describe('App', () => {
     const password = compiled.querySelector<HTMLInputElement>('input[name="password"]')!;
     const form = compiled.querySelector<HTMLFormElement>('.auth-form')!;
 
-    email.value = 'wrong@aura.local';
-    password.value = 'wrong-password';
-    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-    fixture.detectChanges();
-    expect(compiled.querySelector('.auth-message')?.textContent).toContain('incorrectos');
-
     email.value = demoAdminCredentials.email;
     password.value = demoAdminCredentials.password;
     form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
     fixture.detectChanges();
 
     expect(compiled.querySelector('.profile-copy strong')?.textContent).toBe('Andre Zapata');
+    expect(compiled.querySelector('.profile-copy small')?.textContent).toBe('Administrador');
     expect(sessionStorage.getItem('aura.session')).not.toContain(demoAdminCredentials.password);
   });
 
-  it('should create a local demo session from registration', async () => {
+  it('should keep Firebase accounts as regular users after restoring a session', async () => {
+    sessionStorage.setItem('aura.session', JSON.stringify({
+      name: 'Lucia Torres',
+      email: 'lucia@example.com',
+      role: 'Usuario',
+    }));
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    expect(compiled.querySelector('.profile-copy small')?.textContent).toBe('Usuario');
+  });
+
+  it('should show the required fields for Firebase email registration', async () => {
     sessionStorage.removeItem('aura.session');
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
     compiled.querySelector<HTMLButtonElement>('.auth-switch button:last-child')?.click();
     fixture.detectChanges();
-    const form = compiled.querySelector<HTMLFormElement>('.auth-form')!;
-    const values: Record<string, string> = {
-      name: 'Lucía Torres',
-      email: 'lucia@example.com',
-      password: 'ClaveDemo123!',
-      confirmPassword: 'ClaveDemo123!',
-    };
-    for (const [name, value] of Object.entries(values)) {
-      compiled.querySelector<HTMLInputElement>(`[name="${name}"]`)!.value = value;
-    }
-    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
-    fixture.detectChanges();
-
-    expect(compiled.querySelector('.profile-copy strong')?.textContent).toBe('Lucía Torres');
-    expect(sessionStorage.getItem('aura.session')).not.toContain('ClaveDemo123!');
+    expect(compiled.querySelector('input[name="name"]')).not.toBeNull();
+    expect(compiled.querySelector('input[name="confirmPassword"]')).not.toBeNull();
   });
 
   it('should wait before returning to the login screen on sign out', async () => {
@@ -101,9 +108,9 @@ describe('App', () => {
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
     vi.useFakeTimers();
-    compiled.querySelector<HTMLButtonElement>('.profile-button')?.click();
+    compiled.querySelector<HTMLButtonElement>('.account-trigger')?.click();
     fixture.detectChanges();
-    compiled.querySelector<HTMLButtonElement>('.profile-menu button')?.click();
+    compiled.querySelector<HTMLButtonElement>('.logout-action')?.click();
     fixture.detectChanges();
 
     expect(compiled.querySelector('.signout-overlay')).not.toBeNull();

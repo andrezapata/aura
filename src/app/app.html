@@ -30,16 +30,11 @@
     </nav>
     <div class="sidebar-spacer"></div>
     <div class="sidebar-note"><span class="note-icon"><svg class="icon"><use href="#i-clock" /></svg></span><div><strong>Todo al día</strong><p>Última sincronización<br>hace 4 minutos</p></div><span class="online-dot"></span></div>
-    <div class="profile-area">
-      <button class="profile-button" [attr.aria-expanded]="isProfileMenuOpen()" aria-haspopup="menu" (click)="toggleProfileMenu()"><span class="avatar avatar-profile">{{ userInitials() }}</span><span class="profile-copy"><strong>{{ currentUser()?.name }}</strong><small>Administrador</small></span><span class="profile-more">···</span></button>
-      @if (isProfileMenuOpen()) {
-        <div class="profile-menu" role="menu"><span>{{ currentUser()?.email }}</span><button role="menuitem" (click)="signOut()"><svg class="icon"><use href="#i-arrow-right" /></svg>Cerrar sesión</button></div>
-      }
-    </div>
+    <div class="profile-summary"><span class="avatar avatar-profile">{{ userInitials() }}</span><span class="profile-copy"><strong>{{ currentUser()?.name }}</strong><small>{{ currentUser()?.role }}</small></span></div>
   </aside>
 
   <main class="main-area">
-    <header class="topbar"><div class="breadcrumb"><span>AURA · ESPACIO DE TRABAJO</span><span class="crumb-divider">/</span><strong>{{ activeNav() }}</strong></div><div class="topbar-actions"><label class="search-box"><svg class="icon"><use href="#i-search" /></svg><input type="search" placeholder="Buscar en este módulo" aria-label="Buscar en este módulo" [value]="searchTerm()" (input)="updateSearch($event)"><kbd>⌘ K</kbd></label><button class="icon-button notification-button" aria-label="Notificaciones"><svg class="icon"><use href="#i-bell" /></svg><span></span></button><span class="avatar avatar-top">{{ userInitials() }}</span></div></header>
+    <header class="topbar"><div class="breadcrumb"><span>AURA · ESPACIO DE TRABAJO</span><span class="crumb-divider">/</span><strong>{{ activeNav() }}</strong></div><div class="topbar-actions"><label class="search-box"><svg class="icon"><use href="#i-search" /></svg><input type="search" placeholder="Buscar en este módulo" aria-label="Buscar en este módulo" [value]="searchTerm()" (input)="updateSearch($event)"><kbd>⌘ K</kbd></label><button class="icon-button notification-button" aria-label="Notificaciones"><svg class="icon"><use href="#i-bell" /></svg><span></span></button><div class="account-area"><button class="avatar avatar-top account-trigger" aria-label="Abrir opciones de cuenta" [attr.aria-expanded]="isProfileMenuOpen()" aria-haspopup="menu" (click)="toggleProfileMenu()">{{ userInitials() }}</button>@if (isProfileMenuOpen()) { <div class="profile-menu account-menu" role="menu"><div class="account-menu-heading"><strong>{{ currentUser()?.name }}</strong><span>{{ currentUser()?.email }}</span></div><button role="menuitem" (click)="openProfileDetails()">Mi perfil</button><button class="logout-action" role="menuitem" (click)="signOut()"><svg class="icon"><use href="#i-arrow-right" /></svg>Cerrar sesión</button></div> }</div></div></header>
     <div class="dashboard-content">
       @if (activeNav() === 'Resumen') {
       <section class="welcome-row"><div><p class="eyebrow"><span class="eyebrow-line"></span> LUNES, 5 DE OCTUBRE DE 2026</p><h1>Buenos días, {{ greetingName() }} <span class="wave">✳</span></h1><p class="welcome-subtitle">Aquí tienes el pulso de tu operación hoy.</p></div></section>
@@ -127,6 +122,16 @@
       </section>
     </div>
   }
+  @if (isProfileDetailsOpen()) {
+    <div class="dialog-backdrop" (click)="closeProfileDetails()">
+      <section class="create-dialog profile-details-dialog" role="dialog" aria-modal="true" aria-labelledby="profile-title" (click)="$event.stopPropagation()">
+        <div class="dialog-heading"><div><p class="section-kicker">CUENTA AURA</p><h2 id="profile-title">Mi perfil</h2></div><button class="icon-button" type="button" aria-label="Cerrar" (click)="closeProfileDetails()">×</button></div>
+        <div class="profile-details"><span class="avatar avatar-profile">{{ userInitials() }}</span><div><strong>{{ currentUser()?.name }}</strong><span>{{ currentUser()?.role }}</span></div></div>
+        <dl class="profile-data"><div><dt>Correo electrónico</dt><dd>{{ currentUser()?.email }}</dd></div><div><dt>Espacio de trabajo</dt><dd>AURA Servicios</dd></div></dl>
+        <div class="dialog-actions"><button class="primary-button" type="button" (click)="closeProfileDetails()">Listo</button></div>
+      </section>
+    </div>
+  }
 </div>
 } @else {
   <main class="auth-screen">
@@ -138,25 +143,20 @@
       </div>
       <p class="auth-kicker">ESPACIO DE TRABAJO</p>
       <h1 id="auth-title">{{ authMode() === 'login' ? 'Bienvenido a AURA' : 'Crea tu cuenta' }}</h1>
-      <p class="auth-description">{{ authMode() === 'login' ? 'Ingresa para continuar con tu operación.' : 'Completa tus datos para empezar.' }}</p>
+      <p class="auth-description">{{ authMode() === 'login' ? 'Ingresa para continuar con tu operación.' : 'Completa tus datos. Tu cuenta se guardará en Firebase y entrarás automáticamente.' }}</p>
       <form class="auth-form" (submit)="completeAuthentication($event)">
         @if (authMode() === 'register') {
           <label>Nombre completo<input name="name" type="text" autocomplete="name" placeholder="Andre Zapata" required minlength="2"></label>
         }
-        <label>Correo electrónico<input name="email" type="email" autocomplete="email" placeholder="nombre@empresa.com" required></label>
-        <label>Contraseña<input name="password" type="password" [attr.autocomplete]="authMode() === 'login' ? 'current-password' : 'new-password'" placeholder="Mínimo 8 caracteres" required minlength="8"></label>
+        <label>Correo electrónico<input name="email" type="email" autocomplete="email" [value]="authMode() === 'login' ? demoEmail : ''" placeholder="nombre@empresa.com" required></label>
+        <label>Contraseña<input name="password" type="password" [attr.autocomplete]="authMode() === 'login' ? 'current-password' : 'new-password'" [value]="authMode() === 'login' ? demoPassword : ''" placeholder="Mínimo 8 caracteres" required minlength="8"></label>
         @if (authMode() === 'register') {
           <label>Confirmar contraseña<input name="confirmPassword" type="password" autocomplete="new-password" placeholder="Repite tu contraseña" required minlength="8"></label>
         }
         <button class="primary-button auth-submit" type="submit">{{ authMode() === 'login' ? 'Iniciar sesión' : 'Crear cuenta' }}</button>
       </form>
-      <div class="auth-divider"><span>o continúa con</span></div>
-      <div class="provider-actions">
-        <button type="button" class="provider-button" (click)="notifyProviderUnavailable('Google')"><img class="provider-logo" src="/google-logo.svg" alt="">Google / Gmail</button>
-        <button type="button" class="provider-button" (click)="notifyProviderUnavailable('Facebook')"><img class="provider-logo" src="/facebook-logo.svg" alt="">Facebook</button>
-      </div>
       @if (authMessage()) { <p class="auth-message" role="status">{{ authMessage() }}</p> }
-      <p class="auth-disclaimer">Acceso de demostración. Para validar cuentas y activar Google o Facebook se necesita conectar un servidor de autenticación.</p>
+      <p class="auth-disclaimer">Accede con tu correo y contraseña de AURA.</p>
     </section>
     <footer class="auth-footer">© 2026 AURA Gestión</footer>
   </main>

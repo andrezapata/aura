@@ -54,13 +54,6 @@ button { color: inherit; }
 .sidebar-note p { margin: 4px 0 0; color: #bdc9da; font-size: 10px; line-height: 1.55; }
 .online-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #73c38c; box-shadow: 0 0 0 3px rgb(115 195 140 / 14%); }
 .sidebar-note > .online-dot { margin: 5px 0 0 auto; }
-.profile-button { display: flex; align-items: center; gap: 10px; width: 100%; padding: 10px 5px 3px; border: 0; background: transparent; text-align: left; cursor: pointer; }
-.profile-area { position: relative; }
-.profile-menu { position: absolute; z-index: 5; right: 0; bottom: calc(100% + 8px); left: 0; display: grid; gap: 8px; padding: 11px; border: 1px solid #344963; border-radius: 6px; background: #14243a; box-shadow: 0 10px 30px rgb(0 0 0 / 32%); }
-.profile-menu > span { overflow: hidden; color: #bdc9da; font-size: 10px; text-overflow: ellipsis; }
-.profile-menu button { display: flex; align-items: center; gap: 8px; min-height: 34px; padding: 0 8px; border: 1px solid #75404a; border-radius: 4px; background: #3a242d; color: #ffaaa2; font-size: 11px; font-weight: 600; text-align: left; cursor: pointer; }
-.profile-menu button:hover { border-color: #dc2626; background: #4b2630; }
-.profile-menu .icon { width: 15px; height: 15px; transform: rotate(180deg); }
 .avatar { display: grid; place-items: center; width: 33px; height: 33px; flex: 0 0 auto; border-radius: 50%; font-size: 10px; font-weight: 700; }
 .avatar-profile { background: #e9c2a9; color: #553b31; }
 .profile-more { color: #b3c7ba; font-size: 19px; line-height: 1; }
@@ -296,7 +289,7 @@ tbody tr:nth-child(even) { background: rgb(38 59 84 / 32%); }
 	.sidebar { width: 100%; min-width: 0; min-height: auto; padding: 13px 15px 8px; }
 	.brand { padding: 0 2px; }
 	.brand-logo { width: 36px; height: 36px; }
-	.workspace-switcher, .nav-heading, .sidebar-spacer, .sidebar-note, .profile-button { display: none; }
+	.workspace-switcher, .nav-heading, .sidebar-spacer, .sidebar-note, .profile-summary { display: none; }
 	.primary-nav { display: flex; gap: 5px; margin-top: 12px; overflow-x: auto; scrollbar-width: none; }
 	.primary-nav::-webkit-scrollbar { display: none; }
 	.nav-link { width: auto; min-width: max-content; min-height: 34px; gap: 7px; padding-inline: 9px; }
@@ -341,7 +334,6 @@ tbody tr:nth-child(even) { background: rgb(38 59 84 / 32%); }
 	.auth-brand img { width: 38px; height: 38px; }
 	.auth-brand .brand-name { font-size: 18px; }
 	.auth-panel h1 { font-size: 23px; }
-	.provider-actions { grid-template-columns: 1fr; }
 	.module-heading { align-items: flex-start; }
 	.module-overview { grid-template-columns: 1fr; gap: 8px; }
 	.module-overview > div { min-height: 61px; }

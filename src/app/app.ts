@@ -1,5 +1,14 @@
 import { Component, computed, signal } from '@angular/core';
+import {
+  createUserWithEmailAndPassword,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut as firebaseSignOut,
+  updateProfile,
+  type User as FirebaseUser,
+} from 'firebase/auth';
 import { demoAdminCredentials } from './demo-credentials';
+import { firebaseAuth } from './firebase-auth';
 
 interface ModuleRecord {
   id: string;
@@ -25,6 +34,7 @@ interface CreateField {
 interface UserSession {
   name: string;
   email: string;
+  role: 'Administrador' | 'Usuario';
 }
 
 @Component({
@@ -35,11 +45,14 @@ interface UserSession {
 export class App {
   private readonly sessionStorageKey = 'aura.session';
   protected readonly currentUser = signal<UserSession | null>(this.readSessionUser());
+  protected readonly demoEmail = demoAdminCredentials.email;
+  protected readonly demoPassword = demoAdminCredentials.password;
   protected readonly isAuthenticated = computed(() => this.currentUser() !== null);
   protected readonly authMode = signal<'login' | 'register'>('login');
   protected readonly authMessage = signal('');
   protected readonly isSigningOut = signal(false);
   protected readonly isProfileMenuOpen = signal(false);
+  protected readonly isProfileDetailsOpen = signal(false);
   protected readonly activeNav = signal('Resumen');
   protected readonly searchTerm = signal('');
   protected readonly selectedPeriod = signal('Últimos 6 meses');
@@ -52,6 +65,18 @@ export class App {
     .slice(0, 2)
     .map((part) => part[0].toLocaleUpperCase('es'))
     .join(''));
+
+  constructor() {
+    onAuthStateChanged(firebaseAuth, (user) => {
+      if (user) {
+        this.setFirebaseSession(user);
+      } else if (!this.readSessionUser()) {
+        this.currentUser.set(null);
+      }
+    }, (error) => {
+      this.authMessage.set(this.getAuthErrorMessage(error));
+    });
+  }
 
   protected readonly navigation = [
     { label: 'Resumen', icon: 'grid' },
@@ -265,11 +290,7 @@ export class App {
     this.authMessage.set('');
   }
 
-  protected notifyProviderUnavailable(provider: string): void {
-    this.authMessage.set(`El acceso con ${provider} requiere configurar OAuth en el servidor.`);
-  }
-
-  protected completeAuthentication(event: SubmitEvent): void {
+  protected async completeAuthentication(event: SubmitEvent): Promise<void> {
     event.preventDefault();
     const form = event.currentTarget as HTMLFormElement;
     const values = new FormData(form);
@@ -277,36 +298,84 @@ export class App {
     const password = String(values.get('password') ?? '');
     const submittedName = String(values.get('name') ?? '').trim();
 
-    if (this.authMode() === 'login' && (email !== demoAdminCredentials.email || password !== demoAdminCredentials.password)) {
-      this.authMessage.set('Correo o contraseña incorrectos. Usa la cuenta demo configurada para este proyecto.');
-      return;
-    }
-
     if (this.authMode() === 'register' && password !== String(values.get('confirmPassword') ?? '')) {
       this.authMessage.set('Las contraseñas no coinciden.');
       return;
     }
 
-    const emailName = email.split('@')[0].replace(/[._-]+/g, ' ').trim();
-    const name = submittedName || (email === demoAdminCredentials.email
-      ? 'Andre Zapata'
-      : emailName.replace(/\b\p{L}/gu, (letter) => letter.toLocaleUpperCase('es'))) || 'Andre';
-    const session = { name, email };
+    try {
+      if (this.authMode() === 'register') {
+        const result = await createUserWithEmailAndPassword(firebaseAuth, email, password);
+        if (submittedName) await updateProfile(result.user, { displayName: submittedName });
+        this.setFirebaseSession(result.user);
+      } else if (email === demoAdminCredentials.email && password === demoAdminCredentials.password) {
+        if (!this.startSession({ name: 'Andre Zapata', email, role: 'Administrador' })) return;
+      } else {
+        const result = await signInWithEmailAndPassword(firebaseAuth, email, password);
+        this.setFirebaseSession(result.user);
+      }
+      form.reset();
+    } catch (error) {
+      this.authMessage.set(this.getAuthErrorMessage(error));
+    }
+  }
+
+  private setFirebaseSession(user: FirebaseUser): void {
+    const session = {
+      name: user.displayName || user.email?.split('@')[0] || 'Usuario AURA',
+      email: user.email || '',
+      role: 'Usuario' as const,
+    };
     this.currentUser.set(session);
+    this.activeNav.set('Resumen');
+    this.authMessage.set('');
     try {
       sessionStorage.setItem(this.sessionStorageKey, JSON.stringify(session));
     } catch {
       this.authMessage.set('No se pudo guardar la sesión en este navegador.');
-      this.currentUser.set(null);
-      return;
     }
+  }
+
+  private getAuthErrorMessage(error: unknown): string {
+    const code = typeof error === 'object' && error !== null && 'code' in error
+      ? String(error.code)
+      : '';
+    if (code === 'auth/unauthorized-domain') {
+      return 'Este dominio no está autorizado. Añade localhost y el dominio de tu web en Firebase Authentication.';
+    }
+    if (code === 'auth/operation-not-allowed' || code === 'auth/admin-restricted-operation') {
+      return 'Habilita Correo electrónico/contraseña en Firebase: Authentication → Método de acceso.';
+    }
+    if (code === 'auth/email-already-in-use') return 'Ya existe una cuenta con ese correo. Inicia sesión en lugar de registrarte.';
+    if (code === 'auth/invalid-credential' || code === 'auth/invalid-email' || code === 'auth/weak-password') return 'Revisa el correo y la contraseña e inténtalo de nuevo.';
+    if (code === 'auth/network-request-failed') return 'No se pudo conectar con Firebase. Revisa tu conexión e inténtalo de nuevo.';
+    return `No se pudo autenticar${code ? ` (${code})` : ''}. Revisa el correo y la contraseña.`;
+  }
+
+  private startSession(session: UserSession): boolean {
+    try {
+      sessionStorage.setItem(this.sessionStorageKey, JSON.stringify(session));
+    } catch {
+      this.authMessage.set('No se pudo guardar la sesión en este navegador.');
+      return false;
+    }
+    this.currentUser.set(session);
     this.authMessage.set('');
     this.activeNav.set('Resumen');
-    form.reset();
+    return true;
   }
 
   protected toggleProfileMenu(): void {
     this.isProfileMenuOpen.update((open) => !open);
+  }
+
+  protected openProfileDetails(): void {
+    this.isProfileMenuOpen.set(false);
+    this.isProfileDetailsOpen.set(true);
+  }
+
+  protected closeProfileDetails(): void {
+    this.isProfileDetailsOpen.set(false);
   }
 
   protected signOut(): void {
@@ -314,6 +383,7 @@ export class App {
     this.isSigningOut.set(true);
     this.isProfileMenuOpen.set(false);
     setTimeout(() => {
+      void firebaseSignOut(firebaseAuth).catch(() => undefined);
       try {
         sessionStorage.removeItem(this.sessionStorageKey);
       } catch {
@@ -331,7 +401,13 @@ export class App {
       if (!stored) return null;
       const session = JSON.parse(stored) as Partial<UserSession>;
       return typeof session.name === 'string' && typeof session.email === 'string'
-        ? { name: session.name, email: session.email }
+        ? {
+          name: session.name,
+          email: session.email,
+          role: session.role === 'Administrador' && session.email === demoAdminCredentials.email
+            ? 'Administrador'
+            : 'Usuario',
+        }
         : null;
     } catch {
       return null;
