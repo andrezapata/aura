@@ -32,6 +32,7 @@ describe('App', () => {
         .format(new Date())
         .toLocaleLowerCase('es'),
     );
+    expect(compiled.querySelector('.dashboard-footer a')?.getAttribute('href')).toBe('#dashboard');
     expect(compiled.querySelector('h1')?.textContent).toContain('Buenos días, Andre');
     expect(compiled.textContent).toContain('S/ 86,240');
     expect(compiled.querySelector('.welcome-row .primary-button')).toBeNull();

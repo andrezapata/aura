@@ -37,7 +37,7 @@
     <header class="topbar"><div class="breadcrumb"><span>AURA · ESPACIO DE TRABAJO</span><span class="crumb-divider">/</span><strong>{{ activeNav() }}</strong></div><div class="topbar-actions"><label class="search-box"><svg class="icon"><use href="#i-search" /></svg><input type="search" placeholder="Buscar en este módulo" aria-label="Buscar en este módulo" [value]="searchTerm()" (input)="updateSearch($event)"><kbd>⌘ K</kbd></label><button class="icon-button notification-button" aria-label="Notificaciones"><svg class="icon"><use href="#i-bell" /></svg><span></span></button><div class="account-area"><button class="avatar avatar-top account-trigger" aria-label="Abrir opciones de cuenta" [attr.aria-expanded]="isProfileMenuOpen()" aria-haspopup="menu" (click)="toggleProfileMenu()">{{ userInitials() }}</button>@if (isProfileMenuOpen()) { <div class="profile-menu account-menu" role="menu"><div class="account-menu-heading"><strong>{{ currentUser()?.name }}</strong><span>{{ currentUser()?.email }}</span></div><button role="menuitem" (click)="openProfileDetails()">Mi perfil</button><button class="logout-action" role="menuitem" (click)="signOut()"><svg class="icon"><use href="#i-arrow-right" /></svg>Cerrar sesión</button></div> }</div></div></header>
     <div class="dashboard-content">
       @if (activeNav() === 'Resumen') {
-      <section class="welcome-row"><div><p class="eyebrow dashboard-date"><span class="eyebrow-line"></span> {{ currentDateLabel }}</p><h1>Buenos días, {{ greetingName() }} <span class="wave">✳</span></h1><p class="welcome-subtitle">Aquí tienes el pulso de tu operación hoy.</p></div></section>
+      <section class="welcome-row" id="dashboard"><div><p class="eyebrow dashboard-date"><span class="eyebrow-line"></span> {{ currentDateLabel }}</p><h1>Buenos días, {{ greetingName() }} <span class="wave">✳</span></h1><p class="welcome-subtitle">Aquí tienes el pulso de tu operación hoy.</p></div></section>
 
       <section class="metric-grid" aria-label="Indicadores principales">
         @for (metric of metrics; track metric.label) {
@@ -87,7 +87,7 @@
         </article>
       </section>
       }
-      <footer class="dashboard-footer"><span>© 2026 AURA Gestión</span><span><i class="online-dot"></i> Todos los sistemas operativos</span><a href="#ayuda">Centro de ayuda <svg class="icon"><use href="#i-arrow-right" /></svg></a></footer>
+      <footer class="dashboard-footer"><span>© 2026 AURA Gestión</span><span><i class="online-dot"></i> Todos los sistemas operativos</span><a href="#dashboard" (click)="selectNavigation('Resumen')">Centro de ayuda <svg class="icon"><use href="#i-arrow-right" /></svg></a></footer>
     </div>
   </main>
   @if (isCreateOpen()) {
