@@ -59,6 +59,12 @@ export class App {
   protected readonly isCreateOpen = signal(false);
   protected readonly pendingDelete = signal<ModuleRecord | null>(null);
   protected readonly greetingName = computed(() => this.currentUser()?.name.trim().split(/\s+/)[0] || 'Andre');
+  protected readonly currentDateLabel = new Intl.DateTimeFormat('es-ES', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date());
   protected readonly userInitials = computed(() => (this.currentUser()?.name ?? 'Andre Zapata')
     .split(/\s+/)
     .filter(Boolean)

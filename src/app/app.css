@@ -31,7 +31,7 @@ button { color: inherit; }
 .brand-name { display: flex; align-items: center; gap: 6px; min-height: 42px; font: 800 20px/1 'Manrope', sans-serif; letter-spacing: 0; }
 .brand-name span { align-self: center; color: #c5d0df; font: 400 11px/1 'DM Sans', sans-serif; }
 .workspace-switcher { display: flex; align-items: center; gap: 10px; margin: 35px 1px 30px; padding: 10px; border: 1px solid #31445f; border-radius: 7px; background: #14243a; }
-.workspace-avatar { display: grid; place-items: center; width: 31px; height: 31px; border-radius: 6px; background: #dc2626; color: #fff; font: 700 14px 'Manrope', sans-serif; }
+.workspace-avatar { display: block; width: 31px; height: 31px; flex: 0 0 auto; border: 1px solid rgb(255 255 255 / 15%); border-radius: 6px; object-fit: cover; }
 .workspace-copy, .profile-copy { display: grid; gap: 3px; min-width: 0; flex: 1; }
 .workspace-copy strong, .profile-copy strong { overflow: hidden; color: #f6f8f4; font-size: 12px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .workspace-copy small, .profile-copy small { color: #bdc9da; font-size: 10px; }
@@ -76,7 +76,7 @@ button { color: inherit; }
 .avatar-top { width: 32px; height: 32px; background: #e9c2a9; color: #553b31; }
 .dashboard-content { max-width: 1570px; margin: 0 auto; padding: 34px 43px 24px; }
 .welcome-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 25px; }
-.eyebrow, .section-kicker { display: flex; align-items: center; gap: 7px; margin: 0 0 9px; color: #bdc9da; font-size: 9px; font-weight: 700; letter-spacing: 1.15px; }
+.eyebrow, .section-kicker { display: flex; align-items: center; gap: 7px; margin: 0 0 9px; color: #bdc9da; font-size: 9px; font-weight: 700; letter-spacing: 1.15px; text-transform: uppercase; }
 .eyebrow-line { width: 17px; height: 2px; background: #dc2626; }
 h1, h2, p { margin-top: 0; }
 h1 { margin-bottom: 7px; color: #f1f5f9; font: 700 29px/1.2 'Manrope', 'DM Sans', sans-serif; letter-spacing: 0; }

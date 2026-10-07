@@ -26,6 +26,12 @@ describe('App', () => {
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('.brand-name')?.textContent).toContain('AURA');
+    expect(compiled.querySelector('.workspace-avatar')?.getAttribute('src')).toBe('/aura-logo.svg');
+    expect(compiled.querySelector('.dashboard-date')?.textContent?.trim()).toContain(
+      new Intl.DateTimeFormat('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+        .format(new Date())
+        .toLocaleLowerCase('es'),
+    );
     expect(compiled.querySelector('h1')?.textContent).toContain('Buenos días, Andre');
     expect(compiled.textContent).toContain('S/ 86,240');
     expect(compiled.querySelector('.welcome-row .primary-button')).toBeNull();
