@@ -22,18 +22,51 @@
 @if (isAuthenticated()) {
 <div class="app-shell">
   <aside class="sidebar">
-    <a class="brand" href="#inicio" aria-label="AURA Operaciones, inicio">
-      <img class="brand-logo" src="/aura-logo.svg" alt="Logo AURA">
-      <span class="brand-name">AURA<span>operaciones</span></span>
-    </a>
+    <!-- Brand / Selector Desplegable del Ecosistema -->
+    <div class="brand-switcher-container">
+      <button
+        type="button"
+        class="brand-trigger"
+        aria-label="Abrir aplicaciones del Ecosistema AURA"
+        [attr.aria-expanded]="isEcosystemMenuOpen()"
+        (click)="toggleEcosystemMenu()"
+      >
+        <img class="brand-logo" src="/logo_aura_mini.jpg" alt="Logo AURA">
+        <span class="brand-name">AURA<span>operaciones</span></span>
+        <svg class="icon chevron-icon" [class.rotated]="isEcosystemMenuOpen()"><use href="#i-chevron" /></svg>
+      </button>
 
-    <div class="workspace-switcher">
-      <img class="workspace-avatar" src="/aura-logo.svg" alt="Logo AURA">
-      <span class="workspace-copy">
-        <strong>AURA Operaciones</strong>
-        <small>Gestión interna y procesos</small>
-      </span>
-      <svg class="icon"><use href="#i-chevron" /></svg>
+      @if (isEcosystemMenuOpen()) {
+        <div class="ecosystem-dropdown" role="menu">
+          <div class="ecosystem-heading">
+            <span>ECOSISTEMA AURA</span>
+          </div>
+          @for (app of ecosystemApps; track app.name) {
+            <a
+              [href]="app.url"
+              [target]="app.current ? '_self' : '_blank'"
+              rel="noopener noreferrer"
+              class="ecosystem-app-link"
+              [class.active-app]="app.current"
+              (click)="closeEcosystemMenu()"
+              role="menuitem"
+            >
+              <div class="ecosystem-app-icon">
+                <svg class="icon"><use [attr.href]="'#i-' + app.icon" /></svg>
+              </div>
+              <div class="ecosystem-app-copy">
+                <div class="ecosystem-app-title">
+                  <strong>{{ app.name }}</strong>
+                  @if (app.current) {
+                    <span class="app-badge">Activa</span>
+                  }
+                </div>
+                <small>{{ app.description }}</small>
+              </div>
+            </a>
+          }
+        </div>
+      }
     </div>
 
     <p class="nav-heading">GESTIÓN DE OPERACIONES</p>
@@ -56,21 +89,12 @@
 
     <div class="sidebar-spacer"></div>
 
-    <div class="sidebar-note">
-      <span class="note-icon"><svg class="icon"><use href="#i-clock" /></svg></span>
-      <div>
-        <strong>Monitor Activo</strong>
-        <p>Procesos operativos en tiempo real</p>
-      </div>
-      <span class="online-dot" title="Sistemas conectados"></span>
-    </div>
-
     <div class="profile-summary">
       <span class="avatar avatar-profile">{{ userInitials() }}</span>
-      <span class="profile-copy">
+      <div class="profile-copy">
         <strong>{{ currentUser()?.name }}</strong>
         <small>{{ currentUser()?.role }}</small>
-      </span>
+      </div>
     </div>
   </aside>
 
@@ -128,21 +152,21 @@
 
     <div class="dashboard-content">
       @if (activeNav() === 'Resumen') {
-        <!-- Encabezado de Bienvenida y Pulso Operativo -->
+        <!-- Encabezado de Bienvenida Limpio -->
         <section class="welcome-row" id="dashboard">
           <div>
             <p class="eyebrow dashboard-date"><span class="eyebrow-line"></span> {{ currentDateLabel }}</p>
-            <h1>Buenos días, {{ greetingName() }} <span class="wave">✳</span></h1>
-            <p class="welcome-subtitle">Control centralizado de tareas, responsables, aprobaciones y monitor de procesos.</p>
+            <h1>Buenos días, {{ greetingName() }}</h1>
+            <p class="welcome-subtitle">Visión ejecutiva del estado operacional.</p>
           </div>
           <div class="welcome-actions">
-            <button class="secondary-button" (click)="selectNavigation('Seguimiento de procesos')">
-              <svg class="icon"><use href="#i-activity" /></svg> Ver Monitor Completo
+            <button class="primary-button" (click)="openCreateDialog()">
+              <svg class="icon"><use href="#i-plus" /></svg> Nueva Tarea
             </button>
           </div>
         </section>
 
-        <!-- Grilla de Métricas Operativas Clave -->
+        <!-- Indicadores Clave Limpios -->
         <section class="metric-grid" aria-label="Indicadores operacionales">
           @for (metric of metrics(); track metric.label) {
             <article class="metric-card">
@@ -154,275 +178,67 @@
               </div>
               <div class="metric-value">{{ metric.value }}</div>
               <div class="metric-foot">
-                <span [class]="'metric-change ' + metric.tone">{{ metric.change }}</span>
-                <span>{{ metric.note }}</span>
-                <svg class="icon trend-icon"><use href="#i-arrow-up" /></svg>
+                <span class="metric-note">{{ metric.note }}</span>
               </div>
             </article>
           }
         </section>
 
-        <!-- Grilla Primaria: MONITOR DE PROCESOS INTERNOS Y APROBACIONES -->
-        <section class="primary-grid">
-          <!-- Monitor de Procesos Internos (Destacado en Vivo) -->
-          <article class="panel monitor-panel">
+        <!-- Bloque Minimalista: Tareas y Aprobaciones Esenciales -->
+        <section class="summary-columns-grid">
+          <!-- Tareas prioritarias -->
+          <article class="panel summary-clean-panel">
             <div class="panel-heading">
               <div>
-                <p class="section-kicker">MONITOR DE SEGUIMIENTO EN VIVO <span class="kicker-dot live-dot"></span></p>
-                <h2>Seguimiento de Procesos Internos</h2>
+                <p class="section-kicker">ENFOCADO EN HOY</p>
+                <h2>Tareas activas</h2>
               </div>
-              <button class="text-action" (click)="selectNavigation('Seguimiento de procesos')">
-                Ver todos ({{ operationalProcesses().length }}) <svg class="icon"><use href="#i-arrow-right" /></svg>
+              <button class="text-action" (click)="selectNavigation('Tareas')">
+                Ver todas <svg class="icon"><use href="#i-arrow-right" /></svg>
               </button>
             </div>
 
-            @if (featuredProcess(); as proc) {
-              <div class="monitor-card-live">
-                <div class="monitor-card-header">
-                  <div>
-                    <div class="proc-badges">
-                      <span class="proc-code">{{ proc.code }}</span>
-                      <span [class]="'status-pill ' + proc.tone"><i></i>{{ proc.status }}</span>
-                      <span class="proc-cat">{{ proc.category }}</span>
-                    </div>
-                    <h3 class="proc-title">{{ proc.name }}</h3>
-                    <p class="proc-lead">Responsable: <strong>{{ proc.responsible }}</strong> · {{ proc.responsibleRole }}</p>
+            <div class="clean-items-list">
+              @for (task of filteredTasks().slice(0, 3); track task.id) {
+                <div class="clean-item-row" (click)="selectNavigation('Tareas')">
+                  <div class="clean-item-info">
+                    <strong>{{ task.title }}</strong>
+                    <span>{{ task.assignee }} · {{ task.department }}</span>
                   </div>
-                  <div class="proc-progress-badge">
-                    <strong>{{ proc.progress }}%</strong>
-                    <span>avance</span>
-                  </div>
+                  <span [class]="'status-pill ' + task.statusTone">{{ task.status }}</span>
                 </div>
-
-                <!-- Barra de Progreso Global -->
-                <div class="proc-progress-bar">
-                  <div class="proc-progress-fill" [style.width.%]="proc.progress"></div>
-                </div>
-
-                <!-- Stepper Visual: Sigue los pasos al monitor -->
-                <div class="stepper-track" aria-label="Etapas del proceso">
-                  @for (step of proc.steps; track step.title; let idx = $index) {
-                    <div
-                      class="step-node"
-                      [class.step-completed]="step.status === 'completed'"
-                      [class.step-current]="step.status === 'current'"
-                      [class.step-upcoming]="step.status === 'upcoming'"
-                    >
-                      <div class="step-indicator">
-                        @if (step.status === 'completed') {
-                          <svg class="icon step-icon"><use href="#i-check" /></svg>
-                        } @else {
-                          <span>{{ idx + 1 }}</span>
-                        }
-                      </div>
-                      <div class="step-details">
-                        <strong>{{ step.title }}</strong>
-                        <small>{{ step.assignee }}</small>
-                        @if (step.completedAt) {
-                          <span class="step-time">{{ step.completedAt }}</span>
-                        } @else if (step.status === 'current') {
-                          <span class="step-active-tag">En ejecución</span>
-                        }
-                      </div>
-                    </div>
-                  }
-                </div>
-
-                <!-- Controles Rápidos del Monitor -->
-                <div class="monitor-controls">
-                  <div class="monitor-step-info">
-                    <span>Etapa actual:</span>
-                    <strong>Paso {{ proc.currentStepIndex + 1 }} de {{ proc.steps.length }} · {{ proc.steps[proc.currentStepIndex]?.title || 'Finalizado' }}</strong>
-                  </div>
-                  <div class="monitor-actions">
-                    <button class="secondary-button" (click)="resetProcess(proc.id)" title="Reiniciar pasos">
-                      <svg class="icon"><use href="#i-rotate" /></svg> Reiniciar
-                    </button>
-                    @if (proc.status !== 'Completado') {
-                      <button class="primary-button advance-btn" (click)="advanceProcessStep(proc.id)">
-                        Avanzar siguiente paso <svg class="icon"><use href="#i-arrow-right" /></svg>
-                      </button>
-                    } @else {
-                      <span class="completed-badge"><svg class="icon"><use href="#i-check" /></svg> Proceso completado</span>
-                    }
-                  </div>
-                </div>
-              </div>
-            }
+              } @empty {
+                <p class="empty-state">No hay tareas pendientes.</p>
+              }
+            </div>
           </article>
 
-          <!-- Aprobaciones Operativas Pendientes -->
-          <article class="panel approvals-panel">
+          <!-- Aprobaciones pendientes -->
+          <article class="panel summary-clean-panel">
             <div class="panel-heading">
               <div>
-                <p class="section-kicker">FLUJO DE APROBACIONES <span class="heading-count">{{ filteredApprovals().length }}</span></p>
+                <p class="section-kicker">REQUIERE ATENCIÓN</p>
                 <h2>Aprobaciones pendientes</h2>
               </div>
               <button class="text-action" (click)="selectNavigation('Aprobaciones')">
-                Ver módulo <svg class="icon"><use href="#i-arrow-right" /></svg>
+                Gestionar <svg class="icon"><use href="#i-arrow-right" /></svg>
               </button>
             </div>
 
-            <div class="approvals-list">
-              @for (item of filteredApprovals().slice(0, 4); track item.id) {
-                <div class="approval-card-row">
-                  <div class="approval-info">
-                    <div class="approval-topline">
-                      <span class="approval-code">{{ item.code }}</span>
-                      <span class="approval-sla">{{ item.deadlineSLA }}</span>
-                    </div>
+            <div class="clean-items-list">
+              @for (item of filteredApprovals().slice(0, 3); track item.id) {
+                <div class="clean-item-row" (click)="selectNavigation('Aprobaciones')">
+                  <div class="clean-item-info">
                     <strong>{{ item.subject }}</strong>
-                    <div class="approval-meta">
-                      <span>{{ item.requester }}</span>
-                      <span class="bullet">·</span>
-                      <span class="impact-val">{{ item.costOrImpact }}</span>
-                    </div>
+                    <span>{{ item.requester }} · {{ item.category }}</span>
                   </div>
-                  <div class="approval-actions">
-                    @if (item.status === 'Pendiente') {
-                      <button class="btn-approve" (click)="approveItem(item.id)" title="Aprobar requerimiento">
-                        <svg class="icon"><use href="#i-check" /></svg>
-                      </button>
-                      <button class="btn-reject" (click)="rejectItem(item.id)" title="Rechazar">
-                        <svg class="icon"><use href="#i-x" /></svg>
-                      </button>
-                    } @else {
-                      <span [class]="'status-pill ' + item.statusTone">{{ item.status }}</span>
-                    }
-                  </div>
+                  <span [class]="'status-pill ' + item.statusTone">{{ item.status }}</span>
                 </div>
+              } @empty {
+                <p class="empty-state">No hay aprobaciones pendientes.</p>
               }
             </div>
-
-            <button class="panel-footer-action" (click)="selectNavigation('Aprobaciones')">
-              Gestionar todas las aprobaciones <svg class="icon"><use href="#i-arrow-right" /></svg>
-            </button>
           </article>
-        </section>
-
-        <!-- Grilla Inferior: TAREAS, PLAZOS Y RESPONSABLES -->
-        <section class="lower-grid">
-          <!-- Tareas Operativas Prioritarias -->
-          <article class="panel tasks-panel">
-            <div class="panel-heading">
-              <div>
-                <p class="section-kicker">EJECUCIÓN DIARIA</p>
-                <h2>Tareas operativas activas</h2>
-              </div>
-              <button class="text-action" (click)="selectNavigation('Tareas')">
-                Ver todas las tareas <svg class="icon"><use href="#i-arrow-right" /></svg>
-              </button>
-            </div>
-
-            <div class="table-scroll">
-              <table>
-                <thead>
-                  <tr>
-                    <th>CÓDIGO</th>
-                    <th>TAREA</th>
-                    <th>RESPONSABLE</th>
-                    <th>PRIORIDAD</th>
-                    <th>PLAZO</th>
-                    <th>ESTADO</th>
-                    <th>ACCIÓN</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (task of filteredTasks().slice(0, 5); track task.id) {
-                    <tr>
-                      <td class="task-code">{{ task.code }}</td>
-                      <td class="task-title-cell">
-                        <strong>{{ task.title }}</strong>
-                        <small>{{ task.department }}</small>
-                      </td>
-                      <td>
-                        <span class="assignee-tag">
-                          <span class="mini-avatar">{{ task.assigneeInitials }}</span>
-                          {{ task.assignee }}
-                        </span>
-                      </td>
-                      <td><span [class]="'priority-pill ' + task.priorityTone">{{ task.priority }}</span></td>
-                      <td class="task-date">{{ task.dueDate }}</td>
-                      <td><span [class]="'status-pill ' + task.statusTone"><i></i>{{ task.status }}</span></td>
-                      <td>
-                        <button class="btn-cycle" (click)="cycleTaskStatus(task.id)" title="Avanzar estado">
-                          Avanzar
-                        </button>
-                      </td>
-                    </tr>
-                  } @empty {
-                    <tr><td colspan="7" class="empty-state">No hay tareas que coincidan con la búsqueda.</td></tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-
-            <div class="table-footnote">
-              <span>Mostrando {{ filteredTasks().slice(0, 5).length }} de {{ tasks().length }} tareas</span>
-              <button class="text-action" (click)="openCreateDialog()">+ Nueva tarea</button>
-            </div>
-          </article>
-
-          <!-- Plazos Críticos y Responsables en Turno -->
-          <div class="side-panels-stack">
-            <!-- Plazos Críticos -->
-            <article class="panel deadlines-panel">
-              <div class="panel-heading">
-                <div>
-                  <p class="section-kicker">CALENDARIO CRÍTICO <span class="kicker-dot alert-kicker"></span></p>
-                  <h2>Plazos y Vencimientos <span class="heading-count alert-count">{{ filteredDeadlines().length }}</span></h2>
-                </div>
-              </div>
-
-              <div class="deadline-list">
-                @for (d of filteredDeadlines().slice(0, 3); track d.id) {
-                  <div class="deadline-row" [class.done-row]="d.status === 'Cumplido'">
-                    <div class="deadline-copy">
-                      <strong>{{ d.title }}</strong>
-                      <span>{{ d.relatedEntity }} · {{ d.category }}</span>
-                    </div>
-                    <div class="deadline-status-col">
-                      <span [class]="'urgency-badge ' + d.urgencyTone">{{ d.urgencyText }}</span>
-                      <button class="check-done-btn" (click)="toggleDeadlineStatus(d.id)" title="Marcar cumplido">
-                        <svg class="icon"><use href="#i-check" /></svg>
-                      </button>
-                    </div>
-                  </div>
-                }
-              </div>
-
-              <button class="panel-footer-action" (click)="selectNavigation('Plazos')">
-                Ver todos los plazos <svg class="icon"><use href="#i-arrow-right" /></svg>
-              </button>
-            </article>
-
-            <!-- Responsables Operativos -->
-            <article class="panel leaders-panel">
-              <div class="panel-heading">
-                <div>
-                  <p class="section-kicker">EQUIPO DE TRABAJO</p>
-                  <h2>Responsables en turno</h2>
-                </div>
-              </div>
-
-              <div class="leader-list">
-                @for (leader of filteredLeaders().slice(0, 3); track leader.id) {
-                  <div class="leader-row">
-                    <span class="avatar avatar-leader">{{ leader.initials }}</span>
-                    <div class="leader-copy">
-                      <strong>{{ leader.name }}</strong>
-                      <span>{{ leader.role }} · {{ leader.department }}</span>
-                    </div>
-                    <span [class]="'status-pill ' + leader.statusTone">{{ leader.status }}</span>
-                  </div>
-                }
-              </div>
-
-              <button class="panel-footer-action" (click)="selectNavigation('Responsables')">
-                Ver equipo de responsables <svg class="icon"><use href="#i-arrow-right" /></svg>
-              </button>
-            </article>
-          </div>
         </section>
 
       } @else if (activeNav() === 'Seguimiento de procesos') {
@@ -970,7 +786,7 @@
   <!-- Pantalla de Autenticación -->
   <main class="auth-screen">
     <div class="auth-brand">
-      <img src="/aura-logo.svg" alt="Logo AURA">
+      <img src="/logo_aura_mini.jpg" alt="Logo AURA">
       <span class="brand-name">AURA<span>operaciones</span></span>
     </div>
 

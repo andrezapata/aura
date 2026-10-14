@@ -143,7 +143,51 @@ export class App {
   protected readonly searchTerm = signal('');
   protected readonly selectedPeriod = signal('Turno actual');
   protected readonly isCreateOpen = signal(false);
+  protected readonly isEcosystemMenuOpen = signal(false);
   protected readonly pendingDelete = signal<{ id: string; title: string; type: string } | null>(null);
+
+  protected readonly ecosystemApps = [
+    {
+      name: 'AURA Dashboard',
+      tag: 'Operaciones',
+      description: 'Gestión y control centralizado',
+      url: '/',
+      current: true,
+      icon: 'activity',
+    },
+    {
+      name: 'AURA Corporativa',
+      tag: 'Corporativo',
+      description: 'Plataforma web y servicios corporativos',
+      url: 'https://aura-corporativa.vercel.app',
+      current: false,
+      icon: 'grid',
+    },
+    {
+      name: 'AURA Employee',
+      tag: 'Empleados',
+      description: 'Portal de empleados y autoservicio',
+      url: 'https://aura-employee.vercel.app',
+      current: false,
+      icon: 'users',
+    },
+    {
+      name: 'AURA Ops',
+      tag: 'Campo',
+      description: 'Operaciones en vivo y logística',
+      url: 'https://aura-ops.vercel.app',
+      current: false,
+      icon: 'clipboard',
+    },
+  ];
+
+  protected toggleEcosystemMenu(): void {
+    this.isEcosystemMenuOpen.update((open) => !open);
+  }
+
+  protected closeEcosystemMenu(): void {
+    this.isEcosystemMenuOpen.set(false);
+  }
 
   protected readonly greetingName = computed(() => this.currentUser()?.name.trim().split(/\s+/)[0] || 'Andre');
   protected readonly currentDateLabel = new Intl.DateTimeFormat('es-ES', {
